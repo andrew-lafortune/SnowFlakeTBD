@@ -64,7 +64,7 @@ snowsql -c <connection_name> -f <file_name>
 |      2     | create_stages.sql                 | set_up_scripts/create_stages.sql               | Create stages. It sets the source from where we import data. i.e s3
 |      3     | load_data.sql                     | set_up_scripts/load_data.sql                   | Loads the data from stage to created tables.
 |      4     | transfer_data_to_curated.sql      | set_up_scripts/transfer_data_to_curated.sql	  | Filters the data errors and loads data into the curated schema.
-|      5     | views_for_curated.sql             | set_up_scripts/views_for_curated.sql 		  | Creates views in the curated scheme
+|      5     | views_for_curated.sql             | set_up_scripts/views_for_curated.sql 		     | Creates views in the curated scheme
 
 
 ## Environment Teardown
@@ -73,7 +73,7 @@ To undo all the changes that have been done in this project use the [tear_down.s
 ```
 snowsql -c <connection_name> -f tear_down_script/tear_down.sql
 ```
-Alternatively, you can also run the shell script provided in the tear_down_script folder
+Alternatively, you can also run the [shell script](tear_down_script.sh) provided in the tear_down_script folder
 ```
 ./tear_down_script/tear_down_script.sh
 ```
