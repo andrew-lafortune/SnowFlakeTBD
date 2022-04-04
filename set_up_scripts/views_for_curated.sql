@@ -1,4 +1,9 @@
-create function get_month (a timestamp)
+-- This script creates views in the curated scheme
+
+use database tbd_sales;
+use schema tbd_sales.curated;
+
+create function if not exists get_month (a timestamp)
   returns varchar
   as
   $$
@@ -18,7 +23,7 @@ create function get_month (a timestamp)
   $$
 ;
 
-create view customer_monthly_sales_2019_view as (
+create view if not exists customer_monthly_sales_2019_view as (
   with product_enriched_sales as (
     select sales.CustomerID, date_part(year, Date_of_sale) as year_of_sale, get_month(Date_of_sale) as month_of_sale, sales.ProductID, products.Price*Quantity as price
     from sales
@@ -39,7 +44,7 @@ create view customer_monthly_sales_2019_view as (
 );
 
 
-create view top_ten_customers_amount_view as (
+create view if not exists top_ten_customers_amount_view as (
   with product_enriched_sales as (
     select sales.CustomerID, products.Price as price
     from sales
@@ -60,7 +65,7 @@ create view top_ten_customers_amount_view as (
   limit 10
 );
 
-create view product_sales_view as (
+create view if not exists product_sales_view as (
   select OrderID, SalesPersonID, CustomerID, sales.ProductID, Name as Product_Name, Price as Product_Price, Quantity, (Price*Quantity) as total_sales_amount, date_part(day, Date_of_sale) as order_date, date_part(year, Date_of_sale) as sales_year, get_month(Date_of_sale) as sales_month
   from sales
   inner join products

@@ -9,7 +9,7 @@ Run steps:
     - After you create the public and private key, use: alter user tgowda set rsa_public_key=‘<public key contents>’
 
 - Run SnowSQL CLI
-    - insert: private_key_path = <path>/rsa_key.p8 in ~/.snowsql/config
+    - insert: private_key_path = <path>/rsa_key.p8 in ~/.snowsql/config below account id and user
     - execute: export SNOWSQL_PRIVATE_KEY_PASSPHRASE='<passphrase>'. This can be put in your bash script or can be put in your .bashrc
 
 
