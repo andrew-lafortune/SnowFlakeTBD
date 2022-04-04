@@ -73,7 +73,7 @@ To undo all the changes that have been done in this project use the [tear_down.s
 ```
 snowsql -c <connection_name> -f tear_down_script/tear_down.sql
 ```
-Alternatively, you can also run the [shell script](tear_down_script.sh) provided in the tear_down_script folder
+Alternatively, you can also run the [shell script](tear_down_script/tear_down_script.sh) provided in the tear_down_script folder
 ```
 ./tear_down_script/tear_down_script.sh
 ```
