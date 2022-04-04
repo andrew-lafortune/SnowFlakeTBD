@@ -41,3 +41,17 @@ left outer join c_id
 on cid_from_sales = cid_from_customers
 where cid_from_customers is null;
 
+
+with duplicate_customer as (
+    select CUSTOMERID, count(*) as number_of_occurances 
+    from customers
+    group by CUSTOMERID
+    having number_of_occurances > 1;
+)
+
+select CustomerID, FirstName, MiddleInitial, LastName from (
+    select *, row_number() over (partition by CUSTOMERID order by FirstName) as occurance_number
+    from customers
+)
+where occurance_number > 1;
+

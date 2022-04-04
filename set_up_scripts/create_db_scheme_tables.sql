@@ -26,7 +26,7 @@ create table if not exists customers (
 create table if not exists products (
   ProductID int PRIMARY KEY,
   Name varchar,
-  Price DOUBLE  
+  Price number(20,5)  
 );
 
 create table if not exists sales (
