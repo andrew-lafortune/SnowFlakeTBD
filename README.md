@@ -1,7 +1,10 @@
 # Snowflake_POC
 Exploring snowflake
+
 Team Name: TBD (Team Big Data)
+
 Private Slack Channel Name: project_1_tbd
+
 Group Members: Tushar Gowda, Andrew LaFortune, Raj Vaibhav Gude, Shashank Magdi
 
 ## Using Key pair Authentication
@@ -70,7 +73,7 @@ To undo all the changes that have been done in this project use the [tear_down.s
 ```
 snowsql -c <connection_name> -f tear_down_script/tear_down.sql
 ```
-Alternatively, you can also run the shell script provided in the tear_down_script folder
+Alternatively, you can also run the [shell script](tear_down_script/tear_down_script.sh) provided in the tear_down_script folder
 ```
 ./tear_down_script/tear_down_script.sh
 ```
