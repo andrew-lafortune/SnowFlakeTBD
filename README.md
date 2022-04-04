@@ -1,7 +1,10 @@
 # Snowflake_POC
 Exploring snowflake
+
 Team Name: TBD (Team Big Data)
+
 Private Slack Channel Name: project_1_tbd
+
 Group Members: Tushar Gowda, Andrew LaFortune, Raj Vaibhav Gude, Shashank Magdi
 
 ## Using Key pair Authentication
