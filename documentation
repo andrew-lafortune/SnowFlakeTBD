@@ -155,7 +155,8 @@ drop database if exists tbd_sales;
     - Join check:
         - check if sales has any invalid foreign key
 
-
+- Key Pair Authentication
+    - Created key authentication pair to access Snowflake account through snowsql. Updated the config file
 
 - Ask Chad:
  in the first view what is total amount. Is it the sum of quantity or sum of sales?
