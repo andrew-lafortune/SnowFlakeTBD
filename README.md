@@ -132,3 +132,14 @@ You can define multiple saved connections by adding another section with a heade
 accountname = ...
 ```
 See the [Snowflake documentation](https://docs.snowflake.com/en/user-guide/snowsql-start.html) for more details on connection syntax and parameters.
+
+## Snowflake Materialized Views and Clustering:
+
+[Materialized views](https://docs.snowflake.com/en/user-guide/views-materialized.html) contain a copy of subset of the data which is derived from results of a query in a table and store it for later use. Query performance can be boosted by implementing materialized views for workloads comprising of frequent query patterns. Important to note, creating a materialized view containing results only from a possibly everchanging table such as sales might not be beneficial as results of the view change often.
+
+Creating a materialized view makes sense when query results from the view don’t often change or the results of the views are utilized often. Two such simple scenarios are: 1) Top 20 selling customer’s aggregate purchase amount view in 2020, if this view is run multiple times and assuming the result of the query is not varying often, then materializing this view can open up different avenues that one can venture. 2) Top 10 selling products sales view: Here, assuming the top selling products are not altered frequently, materializing this view certainly helps to avoid computation of the result every time. 
+
+A complicated scenario could exist: List all customers who have purchased higher than the average customer amount in 2020. In this case the average customer amount in 2020( a subquery) can be materialized as a view since it does not vary frequently and instead of performing one full pass every single time across the DB, it can be stored intermittently. This of course could not be of use if the DB is already optimized, but in the age of Big Data such materialized views are always beneficial. 
+
+Snowflake helps clustering of materialized views as well as tables and one can do this by designating one or more tables / expressions as a clustering key for the table. Clustering can be considered optimal when there is a user requirement for fastest possible response times regardless of cost incurred. Clustering can be done in situations where we end up using the Group By logic often. One such instance is creating a clustering key on the customer ID on the base table. Doing so, the Group By operation does not need to filter entirety of the table multiple times to acquire customer records readily, as they will be clustered together. Another clustering scenario is setting up a clustering key on sales person ID. Doing so, we can readily compute results with the fastest possible response times, whenever sales person data analysis is required like calculating the highest product sales done by the sales person in a particular quarter, or ranking the sales people according to number of customers acquired per year.
+
