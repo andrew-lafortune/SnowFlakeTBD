@@ -42,30 +42,45 @@ tear_down_script/tear_down_script.sh
 ```
 
 ## Raw Data Quality Analysis
+The only issue found in the given data was that customers had a duplicate primary key. The following checks were done on the given raw data:
+
 1. Sales
-   - null check for all cols - PASS
-   - check if quantity is less than 0 - PASS
-   - check the range of sales. Was between 2018 and 2020 which seems to be sane values - PASS
-   - check if orderid is unique - PASS
-   - duplicate primary key - PASS
+   - Null check for all columns - PASS
+   - Check if quantity is less than 0 - PASS
+   - Check the range of sales. Was between 2018 and 2020 which seems to be sane values - PASS
+   - Check if orderid is unique - PASS
+   - Duplicate primary key - PASS
 
 2. Products
-   - check if price is less than 0 - PASS 
-   - check if price is equal to 0 - FAIL (48 products) (Chad clarification: Do not filter this)
-   - null check for all cols - PASS
-   - check if all names are unique and flag if requried. - PASS
-   - duplicate primary key - PASS
+   - Check if price is less than 0 - PASS 
+   - Check if price is equal to 0 - FAIL (48 products) (Chad clarification: Do not filter this)
+   - Null check for all columns - PASS
+   - Check if all names are unique and flag if requried. - PASS
+   - Duplicate primary key - PASS
 
 3. Employee
-   - null check for firstname, lastname and region - PASS
-   - duplicate primary key - PASS
+   - Null check for firstname, lastname and region - PASS
+   - Duplicate primary key - PASS
    
 4. Customers
-   - null check for firstname, lastname and region - PASS
-   - duplicate primary key - FAIL (1 duplicate - 17829)
+   - Null check for firstname, lastname and region - PASS
+   - Duplicate primary key - FAIL (1 duplicate - 17829)
  
 5. Join check:
-   - check if sales has any invalid foreign key - PASS
+   - Check if sales has any invalid foreign key - PASS
+
+## Databases In The System
+There are 2 databases in the system:
+1. RAW
+2. CURATED
+
+RAW and CURATED databases contain the following tables:
+1. Sales: This table has the data about all the items sold. It contains foreign key reference to products, customers and employees.
+2. Products: Metadata about the products.
+3. Customers: Metadata about the customers.
+4. Employees: Metadata about the employees.
+
+CURATED is a database that is derived from RAW. A number of checks were performed on the RAW database and faulty data was removed from the tables before copying them into CURATED.
 
 ## Description of Curated Data
 ![Sales Data Model](img/SalesDataModel.png "Sales Data Model")
@@ -80,19 +95,20 @@ The curated data model contains the tables shown in the model above with foreign
    - The total dollar amount spent by the ten highest spending customers across the entire range of sales data
    - Includes columns: Customer_ID, total_amount
 3. PRODUCT_SALES_VIEW
-   - A join of the Sales and Products tables. Each row represents one item in an order as the rows in Sales do. This view provides the additional information of the product's name, price per product, and the total amount spent on the product in this order.
+   - A join of the Sales and Products tables. Each row represents one item in an order as the rows in Sales do. This view provides additional information on the product's name, price per product, and the total amount spent on the product in this order.
    - Includes columns: OrderID, SalesPersonID, CustomerID, ProductID, Product_Name, Product_Price, Quantity, total_sales_amount, sales_day, sales_year, sales_month
 
 ## Snowflake Materialized Views and Clustering
-[Materialized views](https://docs.snowflake.com/en/user-guide/views-materialized.html) contain a copy of subset of the data which is derived from results of a query in a table and store it for later use. Query performance can be boosted by implementing materialized views for workloads comprising of frequent query patterns. Important to note, creating a materialized view containing results only from a possibly everchanging table such as sales might not be beneficial as results of the view change often.
+[Materialized views](https://docs.snowflake.com/en/user-guide/views-materialized.html) contain a copy of a subset of the data which is derived from the results of a query in a table and stored for later use. Query performance can be boosted by implementing materialized views for workloads comprising frequent query patterns. Important to note, that creating a materialized view containing results only from a possibly everchanging table such as sales might not be beneficial as the results of the view change often.
 
-Creating a materialized view makes sense when query results from the view don’t often change or the results of the views are utilized often. Two such simple scenarios are: 1) Top 20 selling customer’s aggregate purchase amount view in 2020, if this view is run multiple times and assuming the result of the query is not varying often, then materializing this view can open up different avenues that one can venture. 2)Top 10 selling products sales view: Here, assuming the top selling products are not altered frequently, materializing this view certainly helps to avoid computation of the result every time. 
+Creating a materialized view makes sense when query results from the view don’t often change or the results of the views are utilized often. Two such simple scenarios are: 1) Top 20 selling customer’s aggregate purchase amount view in 2020, if this view is run multiple times and assuming the result of the query is not varying often, then materializing this view can open up different avenues that one can venture. 2)Top 10 selling products sales view: Here, assuming the top-selling products are not altered frequently, materializing this view certainly helps to avoid computation of the result every time. 
 
-A complicated scenario could exist: List all customers who have purchased higher than the average customer amount in 2020. In this case the average customer amount in 2020( a subquery) can be materialized as a view since it does not vary frequently and instead of performing one full pass every single time across the DB, it can be stored intermittently. This of course could not be of use if the DB is already optimized, but in the age of Big Data such materialized views are always beneficial. 
+A complicated scenario could exist: List all customers who have purchased higher than the average customer amount in 2020. In this case, the average customer amount in 2020( a subquery) can be materialized as a view since it does not vary frequently and instead of performing one full pass every single time across the DB, it can be stored intermittently. This of course could not be of use if the DB is already optimized, but in the age of Big Data such materialized views are always beneficial. 
 
-Snowflake helps clustering of materialized views as well as tables and one can do this by designating one or more tables / expressions as a clustering key for the table. Clustering can be considered optimal when there is a user requirement for fastest possible response times regardless of cost incurred. Clustering can be done in situations where we end up using the Group By logic often. One such instance is creating a clustering key on the customer ID on the base table. Doing so, the Group By operation does not need to filter entirety of the table multiple times to acquire customer records readily, as they will be clustered together. Another clustering scenario is setting up a clustering key on sales person ID. Doing so, we can readily compute results with the fastest possible response times, whenever sales person data analysis is required like calculating the highest product sales done by the sales person in a particular quarter, or ranking the sales people according to number of customers acquired per year.
+Snowflake helps clustering of materialized views as well as tables and one can do this by designating one or more tables/expressions as a clustering key for the table. Clustering can be considered optimal when there is a user requirement for the fastest possible response times regardless of the cost incurred. Clustering can be done in situations where we end up using the Group By logic often. One such instance is creating a clustering key on the customer ID on the base table. In doing so, the Group By operation does not need to filter the entirety of the table multiple times to acquire customer records readily, as they will be clustered together. Another clustering scenario is setting up a clustering key on the salesperson ID. By doing so, we can readily compute results with the fastest possible response times, whenever salesperson data analysis is required like calculating the highest product sales done by the salesperson in a particular quarter, or ranking the salespeople according to the number of customers acquired per year.
 
-## Appendix: Using Key Pair Authentication
+## Appendix 
+### Using Key Pair Authentication
 To connect to your Snowflake account through SnowSQL using the key pair authentication method. For this, you will need a private key and a public key.
 To use the key pair with SnowSQL it needs to be encrypted.
 Generate the private key using the following command:
@@ -120,7 +136,7 @@ This will prompt you to enter a passphrase for which you need to enter the passw
 export SNOWSQL_PRIVATE_KEY_PASSPHRASE='<encryption_password>'
 ```
 
-## Setting up a connection
+### Setting up a connection
 To avoid typing in credentials every time you connect, you can set up saved connections in the config file. Adding the following text to the config file (which usually resides in ~/.snowsql/config) will create a connection named login:
 ```
 [connections.login]
